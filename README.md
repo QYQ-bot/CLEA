@@ -3,8 +3,6 @@
 The World is Binary: Contrastive Learning for Denoising Next Basket Recommendation
 
 
-@[TOC](Readme)
-
 
 <hr style=" border:solid; width:100px; height:1px;" color=#000000 size=1">
 
