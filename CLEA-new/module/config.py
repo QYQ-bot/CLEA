@@ -1,0 +1,151 @@
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--same_embedding', type=int, default=1, help='max_basket_num')
+parser.add_argument('--test_every_epoch', type=int, default=5, help='max_basket_num')
+parser.add_argument('--pos_margin', type=float, default=0.3, help='max_basket_num')
+parser.add_argument('--neg_margin', type=float, default=0.7, help='max_basket_num')
+parser.add_argument('--next_k', type=int, default=2, help='neg_ratio')
+parser.add_argument('--neg_ratio', type=int, default=1, help='neg_ratio')
+parser.add_argument('--judge_ratio', type=int, default = 1, help='judge_ratio')
+parser.add_argument('--device_id', type=int, default=0, help='GPU_ID')
+parser.add_argument('--seed', type=int, default=24, help='seed')
+parser.add_argument('--G1_flag', type=int, default=0, help='train_type :  with G1 1 / with no G1 -1 / from no G1 to G1 0')
+
+parser.add_argument('--sd1', type=float, default=1, help='sd1')
+parser.add_argument('--sd2', type=float, default=1, help='sd2')
+parser.add_argument('--sd3', type=float, default=1, help='sd3')
+parser.add_argument('--sd4', type=float, default=1, help='sd4')
+parser.add_argument('--sd5', type=float, default=1, help='sd5')
+
+parser.add_argument('--basket_pool_type', type=str, default='avg', help='basket_pool_type')
+parser.add_argument('--num_layer', type=int, default=1, help='num_layer')
+parser.add_argument('--test_type', type=int, default=1000, help='0:old 1000:1000 500:500')
+
+parser.add_argument('--group_split1', type=int, default=4, help='basket_group_split')
+parser.add_argument('--group_split2', type=int, default=6, help='basket_group_split')
+parser.add_argument('--max_basket_size', type=int, default=35, help='max_basket_size')
+parser.add_argument('--max_basket_num', type=int, default=32, help='max_basket_num')
+parser.add_argument('--dataset', type=str, default='Instacart', help='dataset name')
+parser.add_argument('--num_product', type=int, default=8222 , help='n_items TaFeng:9963 Instacart:8222 Delicious:6539')
+parser.add_argument('--num_users', type=int, default= 6886, help='n_users TaFeng:16060 Instacart:6885 Delicious:1735')
+parser.add_argument('--to2', type=int, default= 0, help='n_users TaFeng:16060 Instacart:6885 Delicious:1735')
+parser.add_argument('--distrisample', type=int, default= 0, help='')
+
+parser.add_argument('--output_dir', type=str, default='./result', help='')
+parser.add_argument('--log_fire', type=str, default='test', help='basket_group_split') #_learning
+parser.add_argument('--temp', type=float, default=1, help='') #1
+parser.add_argument('--temp_min', type=float, default=0.3, help='') #0.3
+parser.add_argument('--pretrain_epoch', type=int, default= 2, help='n_users TaFeng:16060 Instacart:6885 Delicious:1735')
+parser.add_argument('--pretrain_h', type=int, default= 2, help='n_users TaFeng:16060 Instacart:6885 Delicious:1735')
+parser.add_argument('--batch_size', type=int, default=128, help='batch_size')
+parser.add_argument('--epoch', type=int, default=50, help='the number of epochs to train for')
+parser.add_argument('--ANNEAL_RATE', type=float, default=0.0002, help='ANNEAL_RATE') #0.0003
+parser.add_argument('--lr', type=float, default=0.00001, help='learning rate')
+parser.add_argument('--H_lr', type=float, default=0.00001, help='learning rate')  # [0.001, 0.0005, 0.0001]
+parser.add_argument('--G1_lr', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--G2D_lr', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--l2', type=float, default=0.00001, help='l2 penalty')  # [0.001, 0.0005, 0.0001, 0.00005, 0.00001]
+parser.add_argument('--embedding_dim', type=int, default=256,help='hidden sise')  # [0.001, 0.0005, 0.0001, 0.00005, 0.00001]
+parser.add_argument('--alternative_train_epoch', type=int, default=5, help='max_basket_num')
+parser.add_argument('--alternative_train_epoch_D', type=int, default=1, help='max_basket_num')
+parser.add_argument('--alternative_train_epoch_G2', type=int, default=1, help='!!!!!!!!!!!  ')
+parser.add_argument('--alternative_train_batch', type=int, default=200, help='max_basket_num')
+parser.add_argument('--dropout', type=float, default=0.2, help='dropout')
+parser.add_argument('--history', type=int, default=0, help='history')
+parser.add_argument('--temp_learn', type=int, default=0, help='history')
+parser.add_argument('--before_epoch', type=int, default=2, help='basket_group_split') #18 63
+parser.add_argument('--double', type=int, default=0, help='basket_group_split')
+parser.add_argument('--clip_value', type=float, default=0.1, help='dropout')
+parser.add_argument('--rnn', type=str, default='GRU', help='dropout')
+
+parser.add_argument('--soft', type=int, default=0, help='whether to train with soft attention')
+
+parser.add_argument('--margin1', type=float, default=0.1, help='new_tripleloss1')# TODO new
+parser.add_argument('--margin2', type=float, default=0.1, help='new_tripleloss1')# TODO new
+args = parser.parse_args()
+
+
+# -*- coding:utf-8 -*-
+class Config(object):
+    def __init__(self):
+        self.margin1 = args.margin1# TODO new
+        self.margin2 = args.margin2# TODO new
+
+        self.same_embedding = args.same_embedding
+        self.neg_margin = args.neg_margin
+        self.pos_margin = args.pos_margin
+        self.next_k = args.next_k
+        self.pretrain_h = args.pretrain_h
+        self.soft = args.soft
+
+        self.rnn = args.rnn
+        self.double = args.double
+        self.alternative_train_epoch_D = args.alternative_train_epoch_D
+        self.alternative_train_epoch_G2 = args.alternative_train_epoch_G2
+        self.clip_value = args.clip_value
+        self.temp_learn = args.temp_learn
+        self.output_dir = args.output_dir
+        self.G1_lr = args.G1_lr
+        self.distrisample = args.distrisample
+        self.pretrain_epoch = args.pretrain_epoch
+        self.to2 = args.to2
+        self.MODEL_DIR = './runs'
+        self.input_dir = 'dataset/{}'.format(args.dataset)+'/user_date_tran_dict_new.txt'
+        self.dataset = args.dataset
+        self.epochs = args.epoch
+        self.device_id = args.device_id
+        self.log_interval = 500  # num of batches between two logging #300
+        self.num_users = args.num_users  # 
+        self.num_product = args.num_product 
+        self.item_list = list(range(args.num_product))
+        self.seed = args.seed
+        self.test_ratio = 100  
+        self.log_fire = args.log_fire
+        self.test_type = args.test_type
+        self.test_every_epoch = args.test_every_epoch
+      
+
+        self.alternative_train_epoch = args.alternative_train_epoch
+        self.alternative_train_batch = args.alternative_train_batch
+        self.max_basket_size = args.max_basket_size 
+        self.max_basket_num = args.max_basket_num 
+        self.group_split1 = args.group_split1 
+        self.group_split2 = args.group_split2 
+        self.clip = 0
+        self.batch_size = args.batch_size
+        self.neg_ratio = args.neg_ratio 
+        self.judge_ratio = args.judge_ratio  
+        self.sd1 = args.sd1
+        self.sd2 = args.sd2
+        self.sd3 = args.sd3
+        self.sd4 = args.sd4
+        self.sd5 = args.sd5
+        self.learning_rate = args.lr
+        self.H_lr = args.H_lr
+        self.G1_lr = args.G1_lr
+        self.G2D_lr = args.G2D_lr
+        self.dropout = args.dropout
+        self.weight_decay = args.l2  
+        self.basket_pool_type = args.basket_pool_type
+        self.num_layer = args.num_layer 
+   
+        self.embedding_dim = args.embedding_dim  
+        self.ANNEAL_RATE = args.ANNEAL_RATE
+
+        self.temp = args.temp
+        self.temp_min = args.temp_min
+        self.before_epoch = args.before_epoch  
+
+        self.G1_flag = args.G1_flag
+        self.histroy = args.history  
+
+    def list_all_member(self, logger):
+        for name, value in vars(self).items():
+            if not name.startswith('item'):
+                logger.info('%s=%s' % (name, value))
+
+
+    '''
+
+    '''
