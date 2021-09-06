@@ -1,4 +1,4 @@
-# CLEA
+# CLEA-new
 
 The World is Binary: Contrastive Learning for Denoising Next Basket Recommendation
 
